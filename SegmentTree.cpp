@@ -111,7 +111,7 @@ int query(int s, int e, int L, int R, int indx)
 	//indx is node
 	if (L <= s and R >= e)
 		return tree[indx];
-	if (L > s and R < e)
+	if (L > e and R < s)
 		return INT_MAX;
 	int mid = (s + e) / 2;
 	int left = query(s, mid, L, R, 2 * indx);

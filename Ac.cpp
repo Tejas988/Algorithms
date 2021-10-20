@@ -1,69 +1,138 @@
 #include <bits/stdc++.h>
-typedef long long int ll;
+typedef long long  ll;
 using namespace std;
-ll MOD = 1e9 + 7;
+const ll MOD = 1e9 + 7;
 
-ll fastExpo(int a,int n)
+
+ll check(ll x,vector<array<ll,4>> &v)
 { 
-  if(n==0)
-    return 1;//base case
-  ll subproblem = fastExpo(a,n/2)%MOD;
-  if(n & 1)
-  return (((subproblem*subproblem)%MOD)*a)%MOD;
-  else
-  return (subproblem*subproblem)%MOD; 
+  ll tot=0;
+  for(int i=0;i<v.size();i++)
+  { 
+    
+    tot+=min(abs(v[i][0]-x),abs(v[i][2]-x));
+  }
+  return tot;
 }
+
+ll val(ll x,ll y,vector<array<ll,4>> &v)
+{ 
+  ll tot=0;
+  for(int i=0;i<v.size();i++)
+  {
+    if(x>=v[i][0] and x<=v[i][2] and y>=v[i][1] and y<=v[i][3])
+      continue;
+    tot+=min(abs(v[i][0]-x),abs(v[i][2]-x));
+    tot+=min(abs(v[i][1]-x),abs(v[i][3]-x));
+  }
+  return tot; 
+}
+
 void solve()
-{       
+{
+  vector<array<ll,4>> vp;
   int n;
   cin>>n;
-  vector<int> a(n),vis(n+1,0);
+  ll mnx=0;
+  ll mny=0;
   for(int i=0;i<n;i++)
-    cin>>a[i];
-  unordered_map<int,int> mp;
-  for(int i=0;i<n;i++)
-  { 
-    int x;  
-    cin>>x;
-    mp[a[i]]=x;
+  {
+    ll x,y;
+    cin>>x>>y;
+    ll x1,y1;
+    cin>>x1>>y1;
+    mnx=min({mnx,x1,x});
+    mny=min({mny,y,y1});
+    vp.push_back({x,y,x1,y1});
   }
-  int cnt=0;
-  for(int i=1;i<=n;i++)
-  { 
-    int src=i;
-    if(vis[src])
-      continue;
-    cnt+=1;
-    // cout<<endl;
-    while(mp[src]!=i)
+  mnx=abs(mnx);
+  mny=abs(mny);
+  for(int i=0;i<n;i++)
+  {
+    vp[i][0]+=mnx;
+    vp[i][2]+=mnx;
+    vp[i][1]+=mny;
+    vp[i][3]+=mny;
+  }
+  ll l=0,r=2e9+1;
+  ll xc=0;
+  vector<int> xs;
+  while(l<=r)
+  {
+    ll mid=l+(r-l)/2;
+    ll a=check(mid-1,vp);
+    ll b=check(mid,vp);
+    ll c=check(mid+1,vp);
+    // cout<<a<<" "<<b<<" "<<c<<" "<<mid<<endl;
+    if(b<=a and b<=c)
     { 
-      // cout<<src<<" -> ";
-      vis[src]=1;
-      src=mp[src];
+      xs.push_back(mid);
     }
-    vis[src]=1;
+    if(a<=b and b<=c)
+    {
+      r=mid-1;
+    }
+    else
+      l=mid+1;
   }
-  // cout<<cnt;
-  cout<<fastExpo(2,cnt)<<endl;
+  // cout<<xc<<" ";
+  sort(xs.begin(),xs.end());
+  ll i=0,j=0;
+  ll ans=2e9+1;
+  for(auto x:xs)
+  {
+    l=0,r=2e9+1;
+    ll ys=2e9+1;
+    while(l<=r)
+    {
+      ll mid=l+(r-l)/2;
+      ll a=val(x,mid-1,vp);
+      ll b=val(x,mid,vp);
+      ll c=val(x,mid+1,vp);
+      // cout<<a<<" "<<b<<" "<<c<<" "<<mid<<endl;
+      if(b<=a and b<=c)
+      {   
+        if(mid<ys)
+        ys=mid;
+      }
+      if(a<=b and b<=c)
+      {
+        r=mid-1;
+      }
+      else
+        l=mid+1;
+    }
+    ll cur=val(x,ys,vp);
+    if(cur<ans)
+    {  
+      ans=cur;
+      i=x;
+      j=ys;
+    }
+    
+  }
+  cout<<i-mnx<<" "<<j-mny<<endl;
   return;
 }
-    
- 
- 
-int main()
+
+
+
+signed main()
 {
 #ifndef ONLINE_JUDGE
   freopen("in.txt", "r", stdin);
-  freopen("opts.txt", "w", stdout);
+  freopen("o.txt", "w", stdout);
 #endif
   ios_base::sync_with_stdio(false);
   cin.tie(NULL);
-  ll t = 1;
+  int t = 1;
   cin >> t;
-  while (t-- )
+  for (int i = 1; i <= t; i++)
   {
+    cout<<"Case #"<<i<<": ";
     solve();
+
   }
   return 0;
- 
+
 }
